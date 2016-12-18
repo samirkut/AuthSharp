@@ -2,14 +2,12 @@
 using System.Composition;
 using System.Composition.Hosting;
 using System.Reflection;
+using DevZH.UI;
 
 namespace AuthSharp
 {
     public class Program
     {
-        [Import]
-        public IDataAccess DataAccess { get; set; }
-
         public static void Main(string[] args)
         {
             var configuration = new ContainerConfiguration()
@@ -17,8 +15,13 @@ namespace AuthSharp
 
             using (var container = configuration.CreateContainer())
             {
-                var propg = new Program();
-                container.SatisfyImports(propg);
+
+                var app = new Application();
+
+                var window = new MainWindow();
+                container.SatisfyImports(window);
+
+                app.Run(window);
 
                 Console.ReadLine();
             }

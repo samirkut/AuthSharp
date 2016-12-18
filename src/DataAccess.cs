@@ -16,7 +16,7 @@ namespace AuthSharp
 
         public DataAccess()
         {
-            _encryptor = new Encryptor("0000");//default?
+            _encryptor = new Encryptor("0000");//default password?
             _prefsFilePath = Path.GetFullPath("~/.authSharpPrefs");
         }
 
@@ -43,7 +43,7 @@ namespace AuthSharp
         public IList<Entry> GetEntries()
         {
             var prefs = Load();
-            return prefs.Entries ?? new List<Entry>();
+            return prefs?.Entries ?? new List<Entry>();
         }
 
         public bool Login(string password)
