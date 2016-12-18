@@ -22,8 +22,6 @@ namespace AuthSharp
                 container.SatisfyImports(window);
 
                 app.Run(window);
-
-                Console.ReadLine();
             }
         }
     }
