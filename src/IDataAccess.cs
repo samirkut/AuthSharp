@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AuthSharp.Model;
 
 namespace AuthSharp{
     public interface IDataAccess{
@@ -6,10 +7,10 @@ namespace AuthSharp{
 
         void ChangePassword(string newPassword);
 
-        IList<Entry> GetEntries();
+        IList<AccountEntry> GetEntries();
 
-        void AddUpdateEntry(Entry entry);
+        void AddUpdateEntry(AccountEntry entry);
 
-        void DeleteEntry(Entry entry);
+        void DeleteEntry(AccountEntry entry);
     }
 }

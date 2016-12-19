@@ -1,8 +1,8 @@
 using System;
 
-namespace AuthSharp
+namespace AuthSharp.Model
 {
-    public class Entry
+    public class AccountEntry
     {
         public string Id { get; set; }
         public string Name { get; set; }

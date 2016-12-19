@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace AuthSharp
+namespace AuthSharp.Util
 {
     public class TOTPGen : OTPGen
     {

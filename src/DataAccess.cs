@@ -4,6 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Composition;
 using Newtonsoft.Json;
+using AuthSharp.Model;
+using AuthSharp.Util;
 
 namespace AuthSharp
 {
@@ -20,7 +22,7 @@ namespace AuthSharp
             _prefsFilePath = Path.GetFullPath("~/.authSharpPrefs");
         }
 
-        public void AddUpdateEntry(Entry entry)
+        public void AddUpdateEntry(AccountEntry entry)
         {
             var prefs = Load();
             if (string.IsNullOrEmpty(entry.Id))
@@ -34,20 +36,21 @@ namespace AuthSharp
             Save(prefs);
         }
 
-        public void DeleteEntry(Entry entry)
+        public void DeleteEntry(AccountEntry entry)
         {
             var prefs = Load();
             throw new NotImplementedException();
         }
 
-        public IList<Entry> GetEntries()
+        public IList<AccountEntry> GetEntries()
         {
             var prefs = Load();
-            return prefs?.Entries ?? new List<Entry>();
+            return prefs?.Entries ?? new List<AccountEntry>();
         }
 
         public bool Login(string password)
         {
+            if (string.IsNullOrWhiteSpace(password)) return false;
             _encryptor = new Encryptor(password);
             return Load() != null;
         }

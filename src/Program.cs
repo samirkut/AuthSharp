@@ -3,6 +3,7 @@ using System.Composition;
 using System.Composition.Hosting;
 using System.Reflection;
 using DevZH.UI;
+using AuthSharp.View;
 
 namespace AuthSharp
 {
@@ -15,10 +16,10 @@ namespace AuthSharp
 
             using (var container = configuration.CreateContainer())
             {
-
                 var app = new Application();
-
+                
                 var window = new MainWindow();
+                
                 container.SatisfyImports(window);
 
                 app.Run(window);

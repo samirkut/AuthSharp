@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace AuthSharp
+namespace AuthSharp.Model
 {
     public class Prefs
     {
-        public IList<Entry> Entries{get;set;}
+        public IList<AccountEntry> Entries{get;set;}
     }
 }
