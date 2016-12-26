@@ -19,9 +19,9 @@ namespace AuthSharp
                 var app = new Application();
                 
                 var window = new MainWindow();
-                
                 container.SatisfyImports(window);
-
+                window.Initialize();
+                window.Show();
                 app.Run(window);
             }
         }

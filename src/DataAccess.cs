@@ -44,6 +44,12 @@ namespace AuthSharp
 
         public IList<AccountEntry> GetEntries()
         {
+            return new[]
+            {
+                new AccountEntry{ Name = "AWS"},
+                new AccountEntry{ Name = "Google"}
+            };
+
             var prefs = Load();
             return prefs?.Entries ?? new List<AccountEntry>();
         }

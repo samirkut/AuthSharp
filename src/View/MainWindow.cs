@@ -14,21 +14,29 @@ namespace AuthSharp.View
         public MainWindow()
                 : base("2FA", 250, 500, true)
         {
-            InitializeComponent();
+            AllowMargins = true;
         }
 
-        private void InitializeComponent()
+        public void Initialize()
         {
-            AllowMargins = true;
-
             _mainBox = new VerticalBox();
             this.Child = _mainBox;
 
-            _mainBox.Children.Add(new Entry());
+            Refresh();
+        }
 
-            _mainBox.Children.Add(new Entry());
+        private void Refresh()
+        {
+            //do the children need to be disposed of?
+            _mainBox.Children.Clear();
 
-            _mainBox.Children.Add(new Entry());
+            var entries = DataAccess.GetEntries();
+            foreach (var item in entries)
+            {
+                _mainBox.Children.Add(new AccountEntryViewer(item));
+
+                _mainBox.Children.Add(new Label(" "));
+            }
         }
     }
 }
