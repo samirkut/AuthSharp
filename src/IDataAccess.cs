@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using AuthSharp.Model;
 
 namespace AuthSharp{
-    public interface IDataAccess{
+    public interface IDataAccess
+    {
+        bool RequireLogin();
+
         bool Login(string password);
 
         void ChangePassword(string newPassword);
@@ -11,6 +14,6 @@ namespace AuthSharp{
 
         void AddUpdateEntry(AccountEntry entry);
 
-        void DeleteEntry(AccountEntry entry);
+        void DeleteEntry(string entryId);
     }
 }

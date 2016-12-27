@@ -8,7 +8,5 @@ namespace AuthSharp.Model
         public string Name { get; set; }
         public string Account { get; set; }
         public string Secret { get; set; }
-        public long Counter { get; set; }
-        public EntryType Type { get; set; }
     }
 }

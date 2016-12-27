@@ -6,6 +6,7 @@ using System.Composition;
 using Newtonsoft.Json;
 using AuthSharp.Model;
 using AuthSharp.Util;
+using System.Runtime.InteropServices;
 
 namespace AuthSharp
 {
@@ -19,7 +20,11 @@ namespace AuthSharp
         public DataAccess()
         {
             _encryptor = new Encryptor("0000");//default password?
-            _prefsFilePath = Path.GetFullPath("~/.authSharpPrefs");
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                _prefsFilePath = Environment.ExpandEnvironmentVariables("%USERPROFILE%/.authSharpConfig");
+            else
+                _prefsFilePath = Environment.ExpandEnvironmentVariables("%HOME%/.authSharpConfig");
         }
 
         public void AddUpdateEntry(AccountEntry entry)
@@ -36,24 +41,28 @@ namespace AuthSharp
             Save(prefs);
         }
 
-        public void DeleteEntry(AccountEntry entry)
+        public void DeleteEntry(string entryId)
         {
             var prefs = Load();
-            throw new NotImplementedException();
+            var entry = prefs.Entries.FirstOrDefault(x => x.Id == entryId);
+            if (entry != null)
+                prefs.Entries.Remove(entry);
+            Save(prefs);
         }
 
         public IList<AccountEntry> GetEntries()
         {
-            return new[]
-            {
-                new AccountEntry{ Name = "AWS"},
-                new AccountEntry{ Name = "Google"}
-            };
-
             var prefs = Load();
             return prefs?.Entries ?? new List<AccountEntry>();
         }
 
+        public bool RequireLogin()
+        {
+            if (!File.Exists(_prefsFilePath))
+                return false;
+
+            return Load() == null;
+        }
         public bool Login(string password)
         {
             if (string.IsNullOrWhiteSpace(password)) return false;
@@ -70,14 +79,21 @@ namespace AuthSharp
 
         private Prefs Load()
         {
-            if (!File.Exists(_prefsFilePath))
-                return new Prefs();
+            try
+            {
+                if (!File.Exists(_prefsFilePath))
+                    return new Prefs { Entries = new List<AccountEntry>() };
 
-            var str = File.ReadAllText(_prefsFilePath);
+                var str = File.ReadAllText(_prefsFilePath);
 
-            str = _encryptor.Decrypt(str);
+                str = _encryptor.Decrypt(str);
 
-            return JsonConvert.DeserializeObject<Prefs>(str);
+                return JsonConvert.DeserializeObject<Prefs>(str);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void Save(Prefs prefs)
