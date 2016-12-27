@@ -17,7 +17,25 @@ namespace AuthSharp
             {
                 IView view = new ConsoleView();
                 container.SatisfyImports(view);
-                view.Show();
+                
+                if (view.Login())
+                {
+                    while (true)
+                    {
+                        view.Home();
+
+                        var cki = Console.ReadKey(true);
+                        if (cki.Key == ConsoleKey.Escape)
+                            break;
+
+                        if (cki.Key == ConsoleKey.P)
+                            view.Prefs();
+                        if (cki.Key == ConsoleKey.N)
+                            view.New();
+                        if (cki.Key == ConsoleKey.D)
+                            view.Delete();
+                    }
+                }
             }
 
         }

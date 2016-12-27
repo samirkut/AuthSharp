@@ -6,6 +6,14 @@ namespace AuthSharp.View
 {
     public interface IView
     {
-        void Show();
+        bool Login();
+
+        void Home();
+
+        void Prefs();
+
+        void New();
+
+        void Delete();
     }
 }

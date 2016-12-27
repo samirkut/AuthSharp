@@ -16,31 +16,39 @@ namespace AuthSharp.View
         [Import]
         public IDataAccess DataAccess { get; set; }
 
-        public void Show()
+        public void Home()
         {
-            if (DataAccess.RequireLogin() && !Login()) return;
+            Console.Clear();
+            Console.CursorVisible = false;
 
-            refreshMain();
-
-            while (true)
+            Console.WriteLine("Auth 2FA");
+            Console.WriteLine();
+            var items = DataAccess.GetEntries();
+            foreach (var item in items)
             {
-                var cki = Console.ReadKey(true);
-                if (cki.Key == ConsoleKey.Escape)
-                    break;
-
-                if (cki.Key == ConsoleKey.P)
-                    showPrefs();
-                if (cki.Key == ConsoleKey.N)
-                    showNew();
-                if (cki.Key == ConsoleKey.D)
-                    showDelete();
-
-                refreshMain();
+                var gen = new TOTPGen(item.Secret);
+                var name = item.Name;
+                if (name.Length > 15)
+                    name = name.Substring(0, 15);
+                Console.Write(name);
+                Console.CursorLeft = 20;
+                Console.WriteLine(gen.GetOTP());
             }
+            Console.WriteLine();
+            Console.WriteLine("Valid for {0} secs", TOTPGen.ValidSeconds);
+
+            Console.WriteLine(); Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("  :: New (N) :: Delete (D) :: Prefs (P) :: Exit (ESC) ::");
+            Console.WriteLine(); Console.WriteLine();
+            Console.ResetColor();
         }
 
-        private bool Login()
+        public bool Login()
         {
+            if (!DataAccess.RequireLogin()) return true;
+
+
             Console.Write("Password: ");
             var pwd = ReadPassword();
             if (DataAccess.Login(pwd))
@@ -50,7 +58,7 @@ namespace AuthSharp.View
             return false;
         }
 
-        private void showDelete()
+        public void Delete()
         {
             Console.CursorVisible = true;
             Console.WriteLine("Delete Entry");
@@ -87,7 +95,7 @@ namespace AuthSharp.View
             Console.ReadKey(true);
         }
 
-        private void showNew()
+        public void New()
         {
             Console.CursorVisible = true;
             Console.WriteLine("Add New Entry");
@@ -124,7 +132,8 @@ namespace AuthSharp.View
 
             Console.ReadKey(true);
         }
-        private void showPrefs()
+
+        public void Prefs()
         {
             Console.CursorVisible = true;
             Console.WriteLine("Change Password");
@@ -147,33 +156,6 @@ namespace AuthSharp.View
             Console.ReadKey(true);
         }
 
-        private void refreshMain()
-        {
-            Console.Clear();
-            Console.CursorVisible = false;
-
-            Console.WriteLine("Auth 2FA");
-            Console.WriteLine();
-            var items = DataAccess.GetEntries();
-            foreach (var item in items)
-            {
-                var gen = new TOTPGen(item.Secret);
-                var name = item.Name;
-                if (name.Length > 15)
-                    name = name.Substring(0, 15);
-                Console.Write(name);
-                Console.CursorLeft = 20;
-                Console.WriteLine(gen.GetOTP());
-            }
-            Console.WriteLine();
-            Console.WriteLine("Valid for {0} secs", TOTPGen.ValidSeconds);
-
-            Console.WriteLine(); Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("  :: New (N) :: Delete (D) :: Prefs (P) :: Exit (ESC) ::");
-            Console.WriteLine(); Console.WriteLine();
-            Console.ResetColor();
-        }
 
         private static string ReadPassword()
         {
