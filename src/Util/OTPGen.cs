@@ -51,13 +51,26 @@ namespace AuthSharp.Util
 
         protected OTPGen(string secret)
         {
-            _hmac = new HMACSHA1(Base32.FromBase32String(secret));
+            try
+            {
+                _hmac = new HMACSHA1(Base32.FromBase32String(secret));
+            }
+            catch(Exception ex)
+            {
+                //this can happen on invalid inputs for secrets..
+                _hmac = null;
+            }
         }
 
         public abstract string GetOTP();
 
         protected string GeneratePassword(long iterationNumber, int digits = 6)
         {
+            if (_hmac == null)
+            {
+                return new string('-', digits);
+            }
+
             byte[] counter = BitConverter.GetBytes(iterationNumber);
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(counter);

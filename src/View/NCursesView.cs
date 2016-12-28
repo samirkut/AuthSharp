@@ -84,11 +84,12 @@ namespace AuthSharp.View
 
         public override void Home(bool forceRedraw, double progress)
         {
-            if(progress < currentProgress)
+            if (progress < currentProgress)
                 forceRedraw = true;
 
             currentProgress = Math.Min(progress, 1);
-            if(!forceRedraw) {
+            if (!forceRedraw)
+            {
                 DrawProgress();
                 NCurses.refresh();
                 return;
@@ -131,12 +132,68 @@ namespace AuthSharp.View
 
         public override void New()
         {
-            base.New();
+            DrawBorders(" NEW ");
+
+            NCurses.attron((int)NCurses.A_BOLD);
+            NCurses.mvaddstr(1, 1, "Name");
+            NCurses.attroff((int)NCurses.A_BOLD);
+            NCurses.refresh();
+            var name = ReadInput(1, 15, 40);
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ShowWarning(max_y - 2, 1, "Name cannot be blank.", true);
+                return;
+            }
+
+            NCurses.attron((int)NCurses.A_BOLD);
+            NCurses.mvaddstr(3, 1, "Account");
+            NCurses.attroff((int)NCurses.A_BOLD);
+            NCurses.refresh();
+            var acct = ReadInput(3, 15, 40);
+
+            NCurses.attron((int)NCurses.A_BOLD);
+            NCurses.mvaddstr(5, 1, "Secret");
+            NCurses.attroff((int)NCurses.A_BOLD);
+            NCurses.refresh();
+            var secret = ReadInput(5, 15, 40);
+            if (string.IsNullOrWhiteSpace(secret))
+            {
+                ShowWarning(max_y - 2, 1, "Secret cannot be blank.", true);
+                return;
+            }
+
+            var entry = new AccountEntry
+            {
+                Name = name,
+                Account = acct,
+                Secret = secret
+            };
+            DataAccess.AddUpdateEntry(entry);
+            ShowInfo(max_y - 2, 1, "Entry added", true);
         }
+
 
         public override void Prefs()
         {
-            base.Prefs();
+            DrawBorders(" PREFS ");
+            NCurses.mvaddstr(1, 1, "New Password ");
+            NCurses.refresh();
+            var pwd1 = ReadPassword();
+            if (string.IsNullOrWhiteSpace(pwd1)) return;
+
+            NCurses.mvaddstr(2, 1, "Confirm New Password ");
+            NCurses.refresh();
+            var pwd2 = ReadPassword();
+
+            if (pwd1 != pwd2)
+            {
+                ShowWarning(4, 1, "Sorry passwords don't match!", true);
+            }
+            else
+            {
+                DataAccess.ChangePassword(pwd1);
+                ShowInfo(4, 1, "Password changed.", true);
+            }
         }
 
         public override void Dispose()
@@ -226,6 +283,68 @@ namespace AuthSharp.View
             NCurses.attron((int)NCurses.COLOR_PAIR(0));
             NCurses.hline((char)0, hsize);
             NCurses.attroff((int)NCurses.COLOR_PAIR(0));
+        }
+
+        private string ReadInput(int y, int x, int maxLength)
+        {
+            var ret = new StringBuilder();
+
+            while (true)
+            {
+                var cki = Console.ReadKey(true);
+                if (cki.Key == ConsoleKey.Escape)
+                {
+                    return string.Empty;
+                }
+                else if (cki.KeyChar == '\r' ||
+                       cki.Key == ConsoleKey.Enter ||
+                       (cki.Key == ConsoleKey.M && cki.Modifiers.HasFlag(ConsoleModifiers.Control)))
+                {
+                    return ret.ToString();
+                }
+                else if (cki.Key == ConsoleKey.Backspace)
+                {
+                    if (ret.Length > 0)
+                    {
+                        //delete the char from screen
+                        NCurses.mvaddstr(y, x + ret.Length, " ");
+                        NCurses.refresh();
+                        ret.Length--;
+                    }
+                }
+                else if (char.IsLetterOrDigit(cki.KeyChar) || char.IsPunctuation(cki.KeyChar) || char.IsSeparator(cki.KeyChar))
+                {
+                    if (ret.Length < maxLength)
+                    {
+                        //display on screen
+                        NCurses.mvaddstr(y, x + ret.Length, cki.KeyChar.ToString());
+                        NCurses.refresh();
+                        ret.Append(cki.KeyChar);
+                    }
+                }
+            }
+        }
+
+        private void ShowWarning(int y, int x, string msg, bool waitForKeyPress)
+        {
+            NCurses.attron((int)NCurses.COLOR_PAIR(3));
+            NCurses.mvaddstr(y, x, msg);
+            NCurses.attroff((int)NCurses.COLOR_PAIR(3));
+            NCurses.refresh();
+
+            if (waitForKeyPress)
+                Console.ReadKey(true);
+        }
+
+        private void ShowInfo(int y, int x, string msg, bool waitForKeyPress)
+        {
+            NCurses.attron((int)NCurses.COLOR_PAIR(2));
+            NCurses.mvaddstr(y, x, msg);
+            NCurses.attroff((int)NCurses.COLOR_PAIR(2));
+            NCurses.refresh();
+
+            if (waitForKeyPress)
+                Console.ReadKey(true);
         }
     }
 }
