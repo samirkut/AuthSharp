@@ -4,11 +4,11 @@ using AuthSharp.Model;
 
 namespace AuthSharp.View
 {
-    public interface IView
+    public interface IView : IDisposable
     {
         bool Login();
 
-        void Home();
+        void Home(bool forceRedraw, double progress);
 
         void Prefs();
 

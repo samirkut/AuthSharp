@@ -9,15 +9,35 @@ using AuthSharp.Util;
 
 namespace AuthSharp.View
 {
-    [Export(typeof(IView))]
-    [Shared]
-    public class ConsoleView : IView
+    public class ConsoleView : BaseView
     {
-        [Import]
-        public IDataAccess DataAccess { get; set; }
-
-        public void Home()
+        public override bool Login()
         {
+            if (!DataAccess.RequireLogin()) return true;
+
+            Console.Write("Password: ");
+
+            var pwd = ReadPassword();
+
+            if (DataAccess.Login(pwd))
+                return true;
+
+            Console.WriteLine("Sorry. Password is incorrect.");
+            return false;
+        }
+
+        public override void Home(bool forceRedraw, double progress)
+        {
+            if(progress < currentProgress)
+                forceRedraw = true;
+
+            currentProgress = Math.Min(progress, 1);
+            
+            //console doesnt refresh...
+            if(!forceRedraw) return;
+
+            currentProgress = Math.Min(progress, 1);
+
             Console.Clear();
             Console.CursorVisible = false;
 
@@ -44,21 +64,7 @@ namespace AuthSharp.View
             Console.ResetColor();
         }
 
-        public bool Login()
-        {
-            if (!DataAccess.RequireLogin()) return true;
-
-
-            Console.Write("Password: ");
-            var pwd = ReadPassword();
-            if (DataAccess.Login(pwd))
-                return true;
-
-            Console.WriteLine("Sorry. Password didnt work.");
-            return false;
-        }
-
-        public void Delete()
+        public override void Delete()
         {
             Console.CursorVisible = true;
             Console.WriteLine("Delete Entry");
@@ -95,7 +101,7 @@ namespace AuthSharp.View
             Console.ReadKey(true);
         }
 
-        public void New()
+        public override void New()
         {
             Console.CursorVisible = true;
             Console.WriteLine("Add New Entry");
@@ -133,7 +139,7 @@ namespace AuthSharp.View
             Console.ReadKey(true);
         }
 
-        public void Prefs()
+        public override void Prefs()
         {
             Console.CursorVisible = true;
             Console.WriteLine("Change Password");
@@ -156,30 +162,10 @@ namespace AuthSharp.View
             Console.ReadKey(true);
         }
 
-
-        private static string ReadPassword()
+        public override void Dispose()
         {
-            var sb = new StringBuilder();
-            while (true)
-            {
-                var cki = Console.ReadKey(true);
-
-                if (cki.Key == ConsoleKey.Backspace)
-                {
-                    if (sb.Length > 0)
-                        sb.Length--;
-                }
-                else if (cki.Key == ConsoleKey.Enter)
-                {
-                    Console.WriteLine();
-                    return sb.ToString();
-                }
-                else
-                {
-                    sb.Append(cki.KeyChar);
-                }
-            }
-
+            Console.Clear();
+            Console.ResetColor();
         }
     }
 }
