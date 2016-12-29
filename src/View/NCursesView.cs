@@ -8,6 +8,7 @@ using AuthSharp.Model;
 using System.Collections.Generic;
 using System.Composition;
 using AuthSharp.Util;
+using System.Diagnostics;
 
 namespace AuthSharp.View
 {
@@ -201,6 +202,8 @@ namespace AuthSharp.View
 
         public override void Dispose()
         {
+            NCurses.curs_set(CursorVisibility.Visible);
+
             NCurses.echo();
             NCurses.nocbreak();
             NCurses.keypad(stdscr, false);

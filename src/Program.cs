@@ -37,7 +37,7 @@ namespace AuthSharp
 
             using (var container = configuration.CreateContainer())
             {
-                using (view)
+                using(view)
                 {
                     container.SatisfyImports(view);
 
@@ -73,7 +73,6 @@ namespace AuthSharp
                     }
                 }
             }
-
         }
     }
 }

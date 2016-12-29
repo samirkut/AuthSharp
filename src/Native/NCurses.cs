@@ -111,7 +111,7 @@ namespace AuthSharp.Native
         internal static extern int move(int y, int x);
 
         [DllImport(NCURSES_LIB)]
-        internal static extern void endwin();
+        internal static extern int endwin();
 
 		#region Input/Output
 
