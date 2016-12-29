@@ -106,13 +106,16 @@ namespace AuthSharp.View
             foreach (var item in entries)
             {
                 var gen = new TOTPGen(item.Secret);
+                var code = gen.GetOTP();
+                code = code.TakeEvery(3).Aggregate((x, y) => $"{x} {y}");
+
                 var name = item.Name;
                 if (name.Length > 15)
                     name = name.Substring(0, 15);
 
                 if (alt) NCurses.attron((int)NCurses.A_BOLD);
                 NCurses.mvaddstr(row, (int)(max_x * 0.1), name);
-                NCurses.mvaddstr(row, (int)(max_x * 0.35), gen.GetOTP());
+                NCurses.mvaddstr(row, (int)(max_x * 0.35), code);
                 if (alt) NCurses.attroff((int)NCurses.A_BOLD);
 
                 alt = !alt;
